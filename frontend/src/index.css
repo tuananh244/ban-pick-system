@@ -1,0 +1,93 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --landing-bg-image: url('/background/image1.png');
+}
+
+/* 1. KHỬ THANH CUỘN & FIX TRÀN GÓC */
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100vw;
+  height: 100vh;
+  /*overflow: hidden; Triệt tiêu hoàn toàn thanh cuộn */
+  background: #020617;
+}
+
+@layer components {
+  /* CHỈ KHÓA CUỘN Ở TRANG CHỦ */
+  .landing-background {
+    @apply relative h-screen w-screen flex items-center justify-center bg-cover bg-center overflow-hidden;
+    background-image: linear-gradient(rgba(2, 6, 23, 0.5), rgba(2, 6, 23, 0.7)), var(--landing-bg-image);
+    position: fixed; /* Giữ cố định nền nếu cần */
+    inset: 0;
+  }
+
+  /* 2. HIỆU ỨNG CHỮ MENU ĐỔI MÀU ĐỘNG */
+  .menu-title {
+    @apply font-black italic uppercase tracking-tighter text-7xl sm:text-8xl;
+    background: linear-gradient(to right, #fff 20%, #22d3ee 40%, #06b6d4 60%, #fff 80%);
+    background-size: 200% auto;
+    color: transparent;
+    -webkit-background-clip: text;
+    background-clip: text;
+    animation: shine 4s linear infinite;
+    filter: drop-shadow(0 0 15px rgba(34, 211, 238, 0.3));
+  }
+
+  @keyframes shine {
+    to { background-position: 200% center; }
+  }
+
+  /* 3. ĐIỀU CHỈNH CARD & CHỮ */
+  .landing-card {
+    @apply relative z-20 flex flex-col w-[95%] max-w-[550px] max-h-[90vh] items-center;
+    padding: 3rem 2rem;
+    background: rgba(15, 23, 42, 0.85);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 32px;
+  }
+
+  /* 4. LÀM DỊU MÀU NÚT & TĂNG SIZE CHỮ */
+  .btn-game {
+    @apply transition-all duration-300 font-black uppercase tracking-widest text-sm active:scale-95;
+  }
+
+  .btn-cyan-soft {
+    @apply btn-game bg-cyan-600/90 hover:bg-cyan-500 text-white rounded-xl shadow-lg;
+    box-shadow: 0 4px 15px rgba(8, 145, 178, 0.2);
+  }
+
+  .btn-setting {
+    @apply absolute top-6 right-6 z-50 p-3 rounded-full bg-slate-900/40 border border-white/10 
+           text-white/70 hover:text-cyan-400 hover:bg-slate-800 transition-all duration-300 
+           backdrop-blur-md shadow-lg;
+  }
+  
+  .btn-setting:hover {
+    @apply scale-110 rotate-90; /* Xoay khi hover */
+    box-shadow: 0 0 15px rgba(34, 211, 238, 0.3);
+  }
+
+  .custom-input {
+    @apply w-full px-5 py-4 rounded-xl bg-slate-950/50 border border-white/10 
+           text-lg outline-none transition-all duration-300 focus:border-cyan-500/50;
+  }
+
+  /* 5. HIỆU ỨNG CHUỘT KHI HOVER */
+  .hover-glow:hover {
+    filter: brightness(1.2) drop-shadow(0 0 10px rgba(34, 211, 238, 0.4));
+    transform: translateY(-2px);
+  }
+
+}
+
+/* Ẩn cảnh báo trên PC */
+.rotate-warning { display: none; }
+@media (orientation: portrait) and (max-width: 1024px) {
+  .rotate-warning { @apply fixed inset-0 z-[100] bg-slate-950 flex flex-col items-center justify-center p-10; display: flex; }
+  .landing-background { display: none; }
+}

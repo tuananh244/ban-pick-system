@@ -1,0 +1,46 @@
+# Dependency directories (Loại bỏ các thư mục thư viện cực nặng)
+node_modules/
+jspm_packages/
+
+# Environment variables (Bảo mật: không bao giờ đẩy file .env lên GitHub)
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+*.env
+
+# Python virtual environments
+venv/
+.venv/
+env/
+venv.bak/
+ENV/
+
+# Build outputs (Các file sau khi build xong)
+dist/
+build/
+out/
+.next/
+
+# Logs (Các file ghi nhật ký lỗi)
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+logs/
+*.log
+
+# OS Metadata (Các file rác của hệ điều hành)
+.DS_Store
+Thumbs.db
+
+# IDE/Editor (Các cài đặt riêng của trình soạn thảo)
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Caches
+.eslintcache
+.stylelintcache
+.npm

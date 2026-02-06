@@ -1,0 +1,83 @@
+STT,name,rarity,type,path,e0,e1,e2,e3,e4,e5,e6
+1,Acheron,5,Lightning,Nihility,1,1.5,4,4,0,0,0
+2,Aglaea,5,Lightning,Remembrance,2,4,4,4,0,0,0
+3,Anaxa,5,Wind,Erudition,3,4,5,5,0,0,0
+4,Archer,5,Quantum,Hunt,3,4.5,6,6,0,0,0
+5,Argenti,5,Physical,Erudition,0.5,0.5,0.5,0.5,0,0,0
+6,Aventurine,5,Imaginary,Preservation,1.5,2.5,2.5,2.5,0,0,0
+7,Bailu,5,Lightning,Abundance,0,0,0,0,0,0,0
+8,Black Swan,5,Wind,Nihility,2.5,4.5,6,6,0,0,0
+9,Blade,5,Wind,Destruction,1,1.5,2,2,0,0,0
+10,Boothiill,5,Physical,Hunt,2,3,5,5,0,0,0
+11,Bronya,5,Wind,Harmony,1,2,3,3,3,3,5
+12,Castorice,5,Quantum,Remembrance,5,7,6,8,0,0,0
+13,Cerydra,5,Wind,Harmony,2.5,5,5,5,0,0,0
+14,Cipher,5,Quantum,Nihility,3,4,5,5,0,0,0
+15,Clara,5,Physical,Destruction,0,0.5,0.5,0.5,0.5,0.5,1
+16,Cyrene,5,Ice,Remembrance,4.5,5,8,8,0,0,0
+17,Dan Heng - Imbibitor Lunae,5,Imaginary,Destruction,0.5,1,1.5,1.5,0,0,0
+18,Dan Heng - Permansor Terrae,5,Physical,Preservation,2,5,3,3,3,0,0,0
+19,Dr. Ratio,5,Imaginary,Hunt,0.5,1,1,1,0,0,0
+20,Evernight,5,Ice,Remembrance,5,7,8,8,0,0,0
+21,Feixiao,5,Wind,Hunt,1,2,4,4,0,0,0
+22,Firefly,5,Fire,Destruction,1.5,2.5,4,4,0,0,0
+23,Fu Xuan,5,Quantum,Preservation,0.5,1,1,1,1,1,2
+24,Fugue,5,Fire,Nihility,2.5,4,5,5,0,0,0
+25,Gepard,5,Ice,Preservation,0,0,0,0,0,0,0
+26,Himeko,5,Fire,Erudition,0.5,1,1,1,1,1,1
+27,Huohuo,5,Wind,Abundance,1.5,2,2,2,0,0,0
+28,Hyacine,5,Wind,Remembrance,3,4,4.5,4.5,0,0,0
+29,Hysilens,5,Physical,Nihility,2,5,5.5,5.5,0,0,0
+30,Jade,5,Quantum,Erudition,1,1.5,1.5,1.5,0,0,0
+31,Jiaoqiu,5,Fire,Nihility,1,1,1,1,0,0,0
+32,Jing Yuan,5,Lightning,Erudition,1,1,1,1,0,0,0
+33,Jingliu,5,Ice,Destruction,1,2,2,2,0,0,0
+34,Kafka,5,Lightning,Nihility,3,4.5,5,5,0,0,0
+35,Lingsha,5,Fire,Abundance,1.5,2,2.5,2.5,0,0,0
+36,Luocha,5,Imaginary,Abundance,1,1.5,1.5,1.5,0,0,0
+37,Mydei,5,Imaginary,Destruction,1.5,2.5,3,3,0,0,0
+38,Phainon,5,Physical,Destruction,6,7,9,9,0,0,0
+39,Rappa,5,Imaginary,Erudition,1,2,2.5,2.5,0,0,0
+40,Robin,5,Physical,Harmony,4,6,7,7,0,0,0
+41,Ruan Mei,5,Ice,Harmony,1,2,2.5,2.5,0,0,0
+42,Saber,5,Wind,Destruction,2,2.5,3,3,0,0,0
+43,Seele,5,Quantum,Hunt,1,1,1.5,1.5,1.5,1.5,3
+44,Silver Wolf,5,Quantum,Nihility,2,3,4,4,0,0,0
+45,Sparkle,5,Quantum,Harmony,3.5,5,6,6,0,0,0
+46,Sparxie,5,Fire,Elation,0,0,0,0,0,0,0
+47,Sunday,5,Imaginary,Harmony,3.5,4.5,5,5,0,0,0
+48,The Dahlia,5,Fire,Nihility,5,7,8,8,0,0,0
+49,The Herta,5,Ice,Erudition,2,3,5,5,0,0,0
+50,Topaz and Numby,5,Fire,Hunt,0.5,1,2,2,2,2,4
+51,Trailblazer (Fire),5,Fire,Preservation,0,0,0,0,0,0,0
+52,Trailblazer (Ice),5,Ice,Remembrance,4,4,4,4,4,4,4
+53,Trailblazer (Imaginary),5,Imaginary,Harmony,2,2,2,2,2,2,2
+54,Trailblazer (Physical),5,Physical,Destruction,0,0,0,0,0,0,0
+55,Tribbie,5,Quantum,Harmony,5,8,8.5,8.5,0,0,0
+56,Welt,5,Imaginary,Nihility,0,0,1,1,1,1,1
+57,Yanqing,5,Ice,Hunt,0,0,0,0,0,0,0
+58,Yao Guang,5,Physical,Elation,0,0,0,0,0,0,0
+59,Yunli,5,Physical,Destruction,2,3,4,4,0,0,0
+60,Arlan,4,Lightning,Destruction,0,0,0,0,0,0,0
+61,Asta,4,Fire,Harmony,0,0,0,0,0,0,0
+62,Dan Heng,4,Wind,Hunt,0,0,0,0,0,0,0
+63,Gallagher,4,Fire,Abundance,0,0,1,1,1,1,1
+64,Guinaifen,4,Fire,Nihility,0,0,0,0,0,0,0
+65,Hanya,4,Physical,Harmony,0,0,0,0,0,0,0
+66,Herta,4,Ice,Erudition,0,0,0,0,0,0,0
+67,Hook,4,Fire,Destruction,0,0,0,0,0,0,0
+68,Luka,4,Physical,Nihility,0,0,0,0,0,0,0
+69,Lynx,4,Quantum,Abundance,0,0,0,0,0,0,0
+70,March 7th,4,Ice,Preservation,0,0,0,0,0,0,0
+71,March 7th (The Hunt),4,Imaginary,Hunt,0,0,0,0,0,0,0
+72,Misha,4,Ice,Destruction,0,0,0,0,0,0,0
+73,Moze,4,Lightning,Hunt,0,0,0,0,0,0,0
+74,Natasha,4,Physical,Abundance,0,0,0,0,0,0,0
+75,Pela,4,Ice,Nihility,0,0,0,0,0,0,0
+76,Qingque,4,Quantum,Erudition,0,0,0,0,0,0,0
+77,Sampo,4,Wind,Nihility,0,0,0,0,0,0,0
+78,Serval,4,Lightning,Erudition,0,0,0,0,0,0,0
+79,Sushang,4,Physical,Hunt,0,0,0,0,0,0,0
+80,Tingyun,4,Lightning,Harmony,0,0,0,0,0,0,0
+81,Xueyi,4,Quantum,Destruction,0,0,0,0,0,0,0
+82,Yukong,4,Imaginary,Harmony,0,0,0,0,0,0,0
