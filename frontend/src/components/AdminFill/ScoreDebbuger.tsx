@@ -1,5 +1,3 @@
-import React from 'react';
-
 interface ScoreDebuggerProps {
     p1Teams: any[];
     p2Teams: any[];

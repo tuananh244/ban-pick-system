@@ -1,5 +1,3 @@
-import React from 'react';
-
 export const RarityBorder = ({ rarity }: { rarity: number }) => {
   const colors = rarity === 5 
     ? 'border-[#d4af37] shadow-[inset_0_0_15px_rgba(255,215,0,0.4)]' 

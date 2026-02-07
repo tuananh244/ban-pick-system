@@ -139,12 +139,34 @@ const DraftAdminFill: React.FC = () => {
   const { roomData, sendAction, isTerminated } = useDraftSocket(token, BACKEND_URL);
 
   useEffect(() => {
-    if (!token) { navigate('/'); return; }
-    jwtVerify(token, JWT_SECRET).then(({ payload }) => setDecoded(payload)).catch(() => navigate('/'));
-    Promise.all([loadCharacters(), loadWeapons()]).then(([chars, wpns]) => {
+    // 1. Kiểm tra token trước khi làm bất cứ việc gì
+    if (!token) {
+        navigate('/');
+        return;
+    }
+
+    // 2. Xác thực JWT (Sửa lỗi 'any' payload)
+    jwtVerify(token, JWT_SECRET)
+        .then(({ payload }: any) => {
+        setDecoded(payload);
+        })
+        .catch((err) => {
+        console.error("JWT Error:", err);
+        navigate('/');
+        });
+
+    // 3. Tải dữ liệu song song
+    const fetchData = async () => {
+        try {
+        const [chars, wpns] = await Promise.all([loadCharacters(), loadWeapons()]);
         setAllChars(chars);
         setAllWeapons(wpns);
-    });
+        } catch (err) {
+        console.error("Data Load Error:", err);
+        }
+    };
+
+    fetchData();
   }, [token, navigate]);
 
   const p1FinalTeams = roomData?.p1FinalTeams || [];

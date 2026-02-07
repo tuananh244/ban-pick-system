@@ -1,8 +1,6 @@
-import React from 'react';
 import { RarityBorder } from './TeamShared';
 
 const Mode1Column = ({ side, teamIndex, teamMembers, selectedSlot, onSlotClick, onRemove }: any) => {
-  const isP1 = side === 'p1';
 
   return (
     <div className="grid grid-cols-4 gap-2">
