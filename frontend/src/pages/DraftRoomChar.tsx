@@ -18,13 +18,30 @@ interface CsvRow {
 
 const DraftRoomChar: React.FC = () => {
   const [characters, setCharacters] = useState<Character[]>([]);
+  const [isRefreshing, setIsRefreshing] = useState(false); // Trạng thái cập nhật
   const [searchTerm, setSearchTerm] = useState("");
   const [rarityFilter, setRarityFilter] = useState<string>("All");
   const [pathFilter, setPathFilter] = useState("All");
   const [typeFilter, setTypeFilter] = useState("All");
 
+  // Hàm load dữ liệu dùng chung
+  const fetchData = async (force = false) => {
+    if (force) setIsRefreshing(true);
+    try {
+      const data = await loadCharacters(force);
+      setCharacters(data);
+    } catch (error) {
+      console.error("Failed to load characters:", error);
+    } finally {
+      if (force) {
+        // Tạo độ trễ nhỏ để người dùng thấy hiệu ứng xoay nút
+        setTimeout(() => setIsRefreshing(false), 500);
+      }
+    }
+  };
+
   useEffect(() => {
-    loadCharacters().then(data => setCharacters(data));
+    fetchData();
   }, []);
 
   // --- LOGIC FILTER ---
@@ -63,43 +80,44 @@ const DraftRoomChar: React.FC = () => {
   );
 
   return (
-    // THAY ĐỔI 1: h-screen và overflow-hidden để khóa body scroll, ngăn tràn ngang
     <div className="h-screen w-full bg-[#0b0e14] text-white font-sans overflow-hidden flex flex-col">
       
-      {/* CSS SCROLLBAR */}
+      {/* CSS SCROLLBAR & ANIMATION */}
       <style>{`
-        /* Webkit (Chrome, Edge, Safari) */
         .custom-scrollbar::-webkit-scrollbar {
-          width: 8px; /* Tăng nhẹ độ rộng để dễ kéo hơn */
+          width: 8px;
           height: 8px;
         }
         .custom-scrollbar::-webkit-scrollbar-track {
           background: #0b0e14; 
         }
         .custom-scrollbar::-webkit-scrollbar-thumb {
-          background-color: #1f2937; /* Màu xám tối ban đầu */
+          background-color: #1f2937; 
           border-radius: 4px;
-          border: 2px solid #0b0e14; /* Tạo khoảng hở so với track */
+          border: 2px solid #0b0e14; 
         }
         .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-          background-color: #0891b2; /* Màu Cyan khi hover */
+          background-color: #0891b2; 
         }
 
-        /* Firefox */
         .custom-scrollbar {
             scrollbar-width: thin;
             scrollbar-color: #1f2937 #0b0e14;
         }
+
+        @keyframes spin-custom {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+        .animate-spin-custom {
+          animation: spin-custom 0.8s linear infinite;
+        }
       `}</style>
 
-      {/* THAY ĐỔI 2: Vùng cuộn nội bộ (Scroll Container) */}
-      {/* overflow-y-auto: Chỉ cuộn dọc vùng này */}
-      {/* custom-scrollbar: Áp dụng CSS custom */}
       <div className="flex-1 overflow-y-auto custom-scrollbar p-4">
         <div className="max-w-[1600px] mx-auto pb-10">
           
           {/* --- HEADER TOOLBAR --- */}
-          {/* sticky top-0: Giữ thanh này dính trên cùng khi cuộn div cha */}
           <div className="sticky top-0 z-[100] bg-[#0b0e14]/95 backdrop-blur-sm pt-2 pb-6">
              <div className="flex items-center gap-2 bg-[#11141b] p-2 px-3 rounded-xl border border-gray-800 shadow-2xl overflow-x-auto custom-scrollbar">
               
@@ -133,11 +151,34 @@ const DraftRoomChar: React.FC = () => {
               {/* Path */}
               <div className="flex items-center gap-0.5 shrink-0">{paths.map(p => <FilterIconButton key={p} label={p} iconSrc={`/images/path/${p}.png`} value={p} current={pathFilter} onClick={setPathFilter} />)}</div>
               
-              {/* Export Button */}
+              {/* Actions Group (Refresh + Export) */}
               <div className="ml-auto flex items-center gap-2 shrink-0 pl-2 border-l border-gray-800">
-                <button onClick={handleExportCSV} className="bg-cyan-900/50 hover:bg-cyan-600 text-cyan-200 hover:text-white text-[9px] font-bold px-3 py-1.5 rounded border border-cyan-500/30 hover:border-cyan-400 uppercase transition-all shadow-[0_0_10px_rgba(34,211,238,0.1)] whitespace-nowrap">
+                
+                {/* NÚT CẬP NHẬT (REFRESH) */}
+                <button 
+                  onClick={() => fetchData(true)} 
+                  disabled={isRefreshing}
+                  title="Lấy dữ liệu mới nhất từ Firebase"
+                  className={`flex items-center justify-center w-8 h-8 rounded border border-gray-700 bg-gray-800/50 hover:bg-gray-700 hover:border-cyan-500 transition-all ${isRefreshing ? 'cursor-not-allowed opacity-50' : ''}`}
+                >
+                  <svg 
+                    className={`w-4 h-4 text-cyan-400 ${isRefreshing ? 'animate-spin-custom' : ''}`} 
+                    fill="none" 
+                    viewBox="0 0 24 24" 
+                    stroke="currentColor"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M4 4v5h5M20 20v-5h-5M20 3v4.586a1 1 0 01-2.828.707L12 3M4 21v-4.586a1 1 0 012.828-.707L12 21" />
+                  </svg>
+                </button>
+
+                {/* Nút Export CSV */}
+                <button 
+                  onClick={handleExportCSV} 
+                  className="bg-cyan-900/50 hover:bg-cyan-600 text-cyan-200 hover:text-white text-[9px] font-bold px-3 py-1.5 rounded border border-cyan-500/30 hover:border-cyan-400 uppercase transition-all shadow-[0_0_10px_rgba(34,211,238,0.1)] whitespace-nowrap"
+                >
                   Export CSV
                 </button>
+
                 <div className="flex flex-col items-end leading-none">
                     <span className="text-cyan-400 font-black text-xs">{filteredCharacters.length}</span>
                     <span className="text-gray-600 text-[8px] font-bold">UNITS</span>

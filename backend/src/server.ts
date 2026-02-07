@@ -4,9 +4,9 @@ import { Server } from 'socket.io';
 import jwt from 'jsonwebtoken';
 import cors from 'cors';
 import { CONFIG } from './config/env';
-import { roomStore } from './services/store'; // Lưu ý: thư mục là services (số nhiều)
+import { roomStore } from './services/store'; 
 import { startTimer } from './utils/gameLogic';
-import { registerHandlers } from './handlers'; // Import từ file index.ts trong handlers
+import { registerHandlers } from './handlers'; 
 
 const app = express();
 
@@ -43,7 +43,7 @@ io.on("connection", (socket) => {
     if (!roomStore.has(roomId)) {
       console.log(`Creating Room: ${roomId}`);
       
-      // Parse config từ token (đảm bảo kiểu number)
+      // Parse config từ token (ép kiểu số để tránh lỗi logic so sánh)
       const config = {
           ...decoded,
           tm: parseInt(decoded.tm || 0),
@@ -62,7 +62,7 @@ io.on("connection", (socket) => {
         p1TeamConfigs: [], p2TeamConfigs: [],
         turn: 'p1', 
         phase: 'WAITING',
-        timeLeft: config.tm, 
+        timeLeft: config.tm, // Đảm bảo lấy từ config
         timer: null,
         p1Ready: false, p2Ready: false
       });
@@ -71,34 +71,38 @@ io.on("connection", (socket) => {
     const room = roomStore.get(roomId);
     if (!room) return;
 
-    // 3. Logic Auto Start (Chỉ chạy khi Admin join và phòng đang WAITING)
+    // 3. Logic Auto Start (Chỉnh sửa để đổi thứ tự Phase)
     if (role === 'admin' && room.phase === 'WAITING') {
         console.log(`⚡ Admin joined. Auto-starting match for room ${roomId}`);
         
-        // Xác định Phase đầu tiên dựa trên Config
-        if (room.config.cb > 0) room.phase = 'BAN_CHAR';
-        else if (room.config.wb > 0) room.phase = 'BAN_WEAPON';
-        else room.phase = 'PICK_CHAR';
+        // LUỒNG MỚI: CẤM NV (nếu có) -> CHỌN NV
+        // Lưu ý: Việc Cấm nón (BAN_WEAPON) chỉ diễn ra SAU KHI CHỌN NV xong (Xử lý ở Handlers)
+        if (room.config.cb > 0) {
+            room.phase = 'BAN_CHAR';
+        } else {
+            room.phase = 'PICK_CHAR'; 
+        }
         
-        // Bắt đầu đếm giờ và thông báo cho mọi người
+        // Cập nhật lại timeLeft cho Phase đầu tiên
+        room.timeLeft = room.config.tm;
+        
+        // Bắt đầu đếm giờ và phát tín hiệu cho tất cả máy (Admin + 2 Players)
         startTimer(roomId, io);
         io.to(roomId).emit("update_state", roomStore.getPublicState(roomId));
     }
 
-    // 4. Gửi State hiện tại cho người vừa vào
+    // 4. Gửi State hiện tại cho người vừa vào (Viewer hoặc Reconnect)
     socket.emit("init_state", { 
         ...roomStore.getPublicState(roomId), 
         myIdentity: { role, side } 
     });
 
     // 5. Đăng ký toàn bộ Handler (Ban/Pick + Admin)
-    // Hàm này lấy từ src/handlers/index.ts
     registerHandlers(io, socket, roomId, role, side);
 
     // 6. Xử lý ngắt kết nối
     socket.on("disconnect", () => {
-        // console.log(`User disconnected from ${roomId}`);
-        // Có thể thêm logic xóa phòng nếu cần
+        // Có thể thêm logic xử lý khi người chơi rớt mạng ở đây
     });
 
   } catch (e) {

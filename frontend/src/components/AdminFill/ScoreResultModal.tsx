@@ -120,20 +120,20 @@ export const ScoreResultModal: React.FC<ScoreResultModalProps> = ({ p1Teams, p2T
 
     if (logicMode === null) {
         return (
-            <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/95 backdrop-blur-md">
+            <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/95 backdrop-blur-md animate-in fade-in duration-300">
                 <div className="w-full max-w-md bg-[#0f1216] border border-white/10 rounded-3xl p-8 shadow-2xl">
-                    <h2 className="text-2xl font-black text-white italic uppercase mb-8 text-center tracking-tighter">Cơ Chế Tính Điểm</h2>
+                    <h2 className="text-2xl font-black text-white italic uppercase mb-8 text-center tracking-tighter leading-none">Cơ Chế Tính Điểm</h2>
                     <div className="grid gap-4">
-                        <button onClick={() => setLogicMode(1)} className="group p-5 bg-white/5 border border-white/10 rounded-2xl hover:border-cyan-500/50 text-left transition-all">
+                        <button onClick={() => setLogicMode(1)} className="group p-5 bg-white/5 border border-white/10 rounded-2xl hover:border-cyan-500/50 text-left transition-all hover:bg-cyan-500/5">
                             <div className="text-cyan-400 font-black text-sm uppercase italic mb-1">Mode 1: Ưu Tiên Kết Quả</div>
-                            <p className="text-white/50 text-[10px]">Bên CLEARED thắng FAILED. Nếu cùng trạng thái, xét điểm thấp hơn.</p>
+                            <p className="text-white/50 text-[10px] leading-relaxed uppercase font-bold">Bên CLEARED thắng FAILED. Nếu cùng trạng thái, xét điểm thấp hơn.</p>
                         </button>
-                        <button onClick={() => setLogicMode(2)} className="group p-5 bg-white/5 border border-white/10 rounded-2xl hover:border-pink-500/50 text-left transition-all">
+                        <button onClick={() => setLogicMode(2)} className="group p-5 bg-white/5 border border-white/10 rounded-2xl hover:border-pink-500/50 text-left transition-all hover:bg-pink-500/5">
                             <div className="text-pink-500 font-black text-sm uppercase italic mb-1">Mode 2: Ưu Tiên Tổng Điểm</div>
-                            <p className="text-white/50 text-[10px]">Failed bị phạt +25đ. So sánh tổng cost cuối cùng của tất cả trận.</p>
+                            <p className="text-white/50 text-[10px] leading-relaxed uppercase font-bold">Failed bị phạt +25đ. So sánh tổng cost cuối cùng của tất cả trận.</p>
                         </button>
                     </div>
-                    <button onClick={onClose} className="w-full mt-6 py-2 text-white/20 hover:text-white text-[10px] font-black uppercase tracking-widest transition-colors">← QUAY LẠI</button>
+                    <button onClick={onClose} className="w-full mt-6 py-2 text-white/20 hover:text-white text-[10px] font-black uppercase tracking-widest transition-colors italic">← QUAY LẠI</button>
                 </div>
             </div>
         );
@@ -144,27 +144,47 @@ export const ScoreResultModal: React.FC<ScoreResultModalProps> = ({ p1Teams, p2T
     return (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/90 backdrop-blur-md animate-in fade-in duration-500">
             <div className="w-full max-w-5xl bg-[#0b0e14] border border-white/10 rounded-[2.5rem] overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
-                <div className="px-10 py-6 border-b border-white/5 bg-[#14171f] flex justify-between items-center shrink-0">
+                
+                {/* CSS SCROLLBAR CUSTOM */}
+                <style>{`
+                    .custom-result-scroll::-webkit-scrollbar {
+                        width: 5px;
+                    }
+                    .custom-result-scroll::-webkit-scrollbar-track {
+                        background: rgba(255, 255, 255, 0.01);
+                        border-radius: 10px;
+                    }
+                    .custom-result-scroll::-webkit-scrollbar-thumb {
+                        background: rgba(255, 255, 255, 0.1);
+                        border-radius: 10px;
+                        transition: all 0.3s;
+                    }
+                    .custom-result-scroll::-webkit-scrollbar-thumb:hover {
+                        background: rgba(255, 255, 255, 0.25);
+                    }
+                `}</style>
+
+                <div className="px-10 py-6 border-b border-white/5 bg-[#14171f] flex justify-between items-center shrink-0 shadow-lg z-10">
                     <div>
-                        <h2 className="text-2xl font-black italic text-white uppercase tracking-tighter">BẢNG ĐIỂM CHUNG CUỘC</h2>
+                        <h2 className="text-2xl font-black italic text-white uppercase tracking-tighter leading-none">BẢNG ĐIỂM CHUNG CUỘC</h2>
                     </div>
-                    <div className="flex items-center gap-6 bg-black/60 px-6 py-3 rounded-2xl border border-white/10">
+                    <div className="flex items-center gap-6 bg-black/60 px-6 py-3 rounded-2xl border border-white/10 shadow-inner">
                         <div className="text-center">
-                            <div className="text-[8px] text-pink-400 font-black uppercase">Thắng P1</div>
-                            <div className="text-2xl font-black text-white">{results?.p1WinCount}</div>
-                            <div className="text-[10px] text-pink-500/50 font-bold">Σ {results?.p1CumulativeScore.toFixed(2)}</div>
+                            <div className="text-[8px] text-pink-400 font-black uppercase tracking-widest mb-1 leading-none">Thắng P1</div>
+                            <div className="text-2xl font-black text-white leading-none">{results?.p1WinCount}</div>
+                            <div className="text-[10px] text-pink-500/50 font-bold mt-1 uppercase font-mono">Σ {results?.p1CumulativeScore.toFixed(1)}</div>
                         </div>
                         <div className="text-white/10 font-black italic text-xl px-2">VS</div>
                         <div className="text-center">
-                            <div className="text-[8px] text-cyan-400 font-black uppercase">Thắng P2</div>
-                            <div className="text-2xl font-black text-white">{results?.p2WinCount}</div>
-                            <div className="text-[10px] text-cyan-500/50 font-bold">Σ {results?.p2CumulativeScore.toFixed(2)}</div>
+                            <div className="text-[8px] text-cyan-400 font-black uppercase tracking-widest mb-1 leading-none">Thắng P2</div>
+                            <div className="text-2xl font-black text-white leading-none">{results?.p2WinCount}</div>
+                            <div className="text-[10px] text-cyan-500/50 font-bold mt-1 uppercase font-mono">Σ {results?.p2CumulativeScore.toFixed(1)}</div>
                         </div>
                     </div>
                 </div>
 
-                {/* HIỂN THỊ DANH SÁCH TRẬN ĐẤU (Đây là nơi PlayerMatchCard được dùng) */}
-                <div className="p-8 bg-black/40 overflow-y-auto custom-scrollbar flex-1">
+                {/* VÙNG CUỘN DANH SÁCH TRẬN ĐẤU */}
+                <div className="p-8 bg-black/40 overflow-y-auto custom-result-scroll flex-1">
                     <div className={`grid gap-8 ${results!.matches.length <= 2 ? 'grid-cols-2' : 'grid-cols-1'}`}>
                         {results?.matches.map((match, i) => (
                             <div key={i} className="space-y-4">
@@ -179,18 +199,23 @@ export const ScoreResultModal: React.FC<ScoreResultModalProps> = ({ p1Teams, p2T
                     </div>
                 </div>
 
+                {/* FOOTER HIỂN THỊ NGƯỜI CHIẾN THẮNG */}
                 <div className="relative p-10 border-t border-white/5 text-center bg-gradient-to-b from-transparent to-[#14171f] overflow-hidden shrink-0">
                     {results?.finalWinner !== 'HÒA' && <Fireworks color={winnerColor} />}
                     <div className="relative z-10">
                         <div className="text-[11px] font-black text-white/30 uppercase tracking-[0.8em] mb-4">GRAND CHAMPION</div>
-                        <div className="text-7xl font-black italic tracking-tighter uppercase transition-all duration-1000" style={{ color: winnerColor, textShadow: `0 0 25px ${winnerColor}aa`, transform: 'skewX(-6deg)' }}>{results?.finalWinner}</div>
+                        <div className="text-7xl font-black italic tracking-tighter uppercase transition-all duration-1000 leading-none drop-shadow-2xl" 
+                             style={{ color: winnerColor, textShadow: `0 0 25px ${winnerColor}88`, transform: 'skewX(-6deg)' }}>
+                             {results?.finalWinner}
+                        </div>
                     </div>
                 </div>
 
-                <div className="px-10 py-6 flex justify-between items-center bg-[#0b0e14] border-t border-white/5 shrink-0">
-                    <button onClick={() => setLogicMode(null)} className="text-white/40 hover:text-white font-black uppercase text-[11px] tracking-widest transition-all">← ĐỔI QUY TẮC</button>
-                    <button onClick={() => onConfirm(results!.finalWinner)} className="group relative bg-blue-600 hover:bg-blue-500 px-10 py-4 rounded-2xl font-black text-white uppercase text-[12px] tracking-tighter shadow-2xl active:scale-95 transition-all">
+                <div className="px-10 py-6 flex justify-between items-center bg-[#0b0e14] border-t border-white/5 shrink-0 z-10">
+                    <button onClick={() => setLogicMode(null)} className="text-white/40 hover:text-white font-black uppercase text-[11px] tracking-widest transition-all italic underline-offset-4 hover:underline">← ĐỔI QUY TẮC</button>
+                    <button onClick={() => onConfirm(results!.finalWinner)} className="group relative bg-blue-600 hover:bg-blue-500 px-10 py-4 rounded-2xl font-black text-white uppercase text-[12px] tracking-tighter shadow-2xl active:scale-95 transition-all overflow-hidden border border-blue-400/30">
                         <span className="relative z-10 italic">XÁC NHẬN KẾT QUẢ</span>
+                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
                     </button>
                 </div>
             </div>
