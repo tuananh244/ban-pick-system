@@ -77,9 +77,26 @@ const DraftRoomBanPick: React.FC = () => {
 
   if (!isTokenValid || !roomData?.config) {
     return (
-      <div className="h-screen bg-[#020406] flex flex-col items-center justify-center gap-4">
-        <div className="text-5xl animate-spin">💠</div>
-        <div className="font-black italic text-cyan-400 animate-pulse tracking-widest">ĐANG KẾT NỐI...</div>
+      <div className="h-screen bg-[#020406] flex flex-col items-center justify-center gap-6">
+        {/* Container cho GIF để thêm hiệu ứng đổ bóng/phát sáng */}
+        <div className="relative">
+          <img 
+            src="/images/gif/waiting.gif" 
+            alt="Loading..." 
+            className="w-48 h-48 object-contain drop-shadow-[0_0_25px_rgba(34,211,238,0.4)]"
+          />
+          {/* Vòng xoay mờ ảo bao quanh GIF nếu muốn tăng tính thẩm mỹ */}
+          <div className="absolute inset-0 border-4 border-cyan-500/20 border-t-cyan-500 rounded-full animate-spin" />
+        </div>
+
+        <div className="flex flex-col items-center gap-2">
+          <div className="font-black italic text-cyan-400 animate-pulse tracking-[0.3em] text-2xl uppercase">
+            ĐANG KẾT NỐI...
+          </div>
+          <p className="text-white/30 text-xs font-medium tracking-widest uppercase">
+            Vui lòng đợi trong giây lát
+          </p>
+        </div>
       </div>
     );
   }
