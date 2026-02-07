@@ -52,7 +52,7 @@ const DraftRoomBanPick: React.FC = () => {
   // --- 2. SOCKET CONNECTION ---
   const { roomData, isTerminated, timeLeft, sendAction } = useDraftSocket(
     isTokenValid ? token : null,
-    ENV.VITE_BACKEND_URL
+    ENV.BACKEND_URL
   );
 
   // --- 3. EFFECTS: Redirect & Reset ---
