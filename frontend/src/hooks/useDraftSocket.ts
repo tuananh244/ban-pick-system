@@ -13,6 +13,8 @@ export const useDraftSocket = (token: string | null, backendUrl: string) => {
     const newSocket = io(backendUrl, {
       auth: { token },
       transports: ['websocket'],
+      reconnection: true,
+      reconnectionAttempts: 5
     });
 
     const handleUpdate = (data: any) => {
