@@ -33,7 +33,6 @@ const PlayerMatchCard = ({ side, data, isWinner, totalScore, useAV, hasTalent, d
             <div className="flex justify-between items-center mb-3">
                 <span className={`text-[11px] font-black uppercase tracking-widest ${isP1 ? 'text-pink-400' : 'text-cyan-400'}`}>{isP1 ? 'ĐỘI 01' : 'ĐỘI 02'}</span>
                 <div className="flex gap-2 items-center">
-                    {/* Chỉ hiện Talent nếu Thắng và Có Talent */}
                     {isCleared && hasTalent && <span className="text-[9px] font-black px-2 py-0.5 rounded-md border border-pink-500/50 bg-pink-500/20 text-pink-400 animate-pulse">TALENT (+2)</span>}
                     <span className={`text-[9px] font-black px-2 py-0.5 rounded-md border ${isCleared ? 'bg-green-500/20 text-green-400 border-green-500/30' : 'bg-red-500/20 text-red-400 border-red-500/30'}`}>{isCleared ? 'CLEARED' : 'FAILED'}</span>
                 </div>
@@ -44,7 +43,6 @@ const PlayerMatchCard = ({ side, data, isWinner, totalScore, useAV, hasTalent, d
                         {useAV ? (data.av || 0) : (data.turns || 0)}
                         <span className="text-[10px] text-white/40 ml-1 uppercase font-bold not-italic tracking-normal">{useAV ? 'AV' : 'Lượt'}</span>
                     </span>
-                    {/* Chỉ hiện mạng chết nếu Thắng */}
                     {isCleared && deadCount > 0 && <span className="text-red-500 text-[10px] font-black italic mt-1 animate-pulse">☠️ {deadCount} DEAD (+{deadCount * 3}đ)</span>}
                 </div>
                 <div className="text-right leading-tight">
@@ -72,11 +70,8 @@ export const ScoreResultModal: React.FC<ScoreResultModalProps> = ({ p1Teams, p2T
             const sP = char.equippedWeapon?.stats?.[char.weaponRank] !== undefined ? Number(char.equippedWeapon.stats[char.weaponRank]) : 0;
             return total + eP + sP;
         }, 0);
-        
-        // LOGIC CHỐT: Nếu FAILED (isCleared = false), mạng chết và thiên phú gạo mặc định = 0
         const deathPenalty = teamConfig.isCleared ? (Number(teamConfig.deadCount) || 0) * 3 : 0;
         const talentBonus = (teamConfig.isCleared && teamConfig.hasCastoriceTalent) ? 2 : 0;
-
         return charCost + deathPenalty + talentBonus;
     };
 
@@ -148,8 +143,8 @@ export const ScoreResultModal: React.FC<ScoreResultModalProps> = ({ p1Teams, p2T
 
     return (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/90 backdrop-blur-md animate-in fade-in duration-500">
-            <div className="w-full max-w-5xl bg-[#0b0e14] border border-white/10 rounded-[2.5rem] overflow-hidden shadow-2xl flex flex-col">
-                <div className="px-10 py-6 border-b border-white/5 bg-[#14171f] flex justify-between items-center relative z-20">
+            <div className="w-full max-w-5xl bg-[#0b0e14] border border-white/10 rounded-[2.5rem] overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
+                <div className="px-10 py-6 border-b border-white/5 bg-[#14171f] flex justify-between items-center shrink-0">
                     <div>
                         <h2 className="text-2xl font-black italic text-white uppercase tracking-tighter">BẢNG ĐIỂM CHUNG CUỘC</h2>
                     </div>
@@ -165,6 +160,22 @@ export const ScoreResultModal: React.FC<ScoreResultModalProps> = ({ p1Teams, p2T
                             <div className="text-2xl font-black text-white">{results?.p2WinCount}</div>
                             <div className="text-[10px] text-cyan-500/50 font-bold">Σ {results?.p2CumulativeScore.toFixed(2)}</div>
                         </div>
+                    </div>
+                </div>
+
+                {/* HIỂN THỊ DANH SÁCH TRẬN ĐẤU (Đây là nơi PlayerMatchCard được dùng) */}
+                <div className="p-8 bg-black/40 overflow-y-auto custom-scrollbar flex-1">
+                    <div className={`grid gap-8 ${results!.matches.length <= 2 ? 'grid-cols-2' : 'grid-cols-1'}`}>
+                        {results?.matches.map((match, i) => (
+                            <div key={i} className="space-y-4">
+                                <div className="text-[10px] font-black text-white/30 uppercase italic text-center tracking-[0.4em]">TRẬN 0{i + 1}</div>
+                                <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-4">
+                                    <PlayerMatchCard side="p1" data={match.p1} isWinner={match.winner === 'p1'} totalScore={match.p1.total} useAV={useAV} hasTalent={match.p1.hasTalent} deadCount={match.p1.deadCount} />
+                                    <div className="text-white/10 font-black italic text-xl px-2">VS</div>
+                                    <PlayerMatchCard side="p2" data={match.p2} isWinner={match.winner === 'p2'} totalScore={match.p2.total} useAV={useAV} hasTalent={match.p2.hasTalent} deadCount={match.p2.deadCount} />
+                                </div>
+                            </div>
+                        ))}
                     </div>
                 </div>
 
