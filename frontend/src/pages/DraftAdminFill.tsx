@@ -284,7 +284,7 @@ const DraftAdminFill: React.FC = () => {
     return (
       <div className="h-screen bg-[#020406] flex items-center justify-center relative overflow-hidden">
         <div className="z-10 text-center space-y-6 animate-in fade-in zoom-in duration-700">
-          <img src="/images/gif/waiting.gif" className="w-64 mx-auto drop-shadow-[0_0_20px_rgba(6,182,212,0.3)]" alt="Waiting" />
+          <img src="/images/gif/waiting6.gif" className="w-64 mx-auto drop-shadow-[0_0_20px_rgba(6,182,212,0.3)]" alt="Waiting" />
           <h1 className="text-4xl font-black text-cyan-500 italic tracking-[0.2em] drop-shadow-md uppercase">Setup Complete</h1>
           <p className="text-white font-bold tracking-widest uppercase text-sm opacity-80">Vô game và hoàn thành đội hình của bạn!</p>
         </div>

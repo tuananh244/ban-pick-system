@@ -6,14 +6,6 @@ interface ScoreDebuggerProps {
     onClose?: () => void;
 }
 
-interface ScoreDebuggerProps {
-    p1Teams: any[];
-    p2Teams: any[];
-    p1Configs: any[];
-    p2Configs: any[];
-    onClose?: () => void;
-}
-
 const ScoreDebugger = ({ p1Teams, p2Teams, p1Configs, p2Configs, onClose }: ScoreDebuggerProps) => {
     const renderTable = (teams: any[], configs: any[], side: 'P1' | 'P2') => {
         const isP1 = side === 'P1';
@@ -21,21 +13,39 @@ const ScoreDebugger = ({ p1Teams, p2Teams, p1Configs, p2Configs, onClose }: Scor
         const borderColor = isP1 ? 'border-pink-500/30' : 'border-cyan-500/30';
         const bgColor = isP1 ? 'bg-pink-500/5' : 'bg-cyan-500/5';
         const thumbColor = isP1 ? '#ec4899' : '#06b6d4';
+        
+        // Tạo class name duy nhất cho từng bên để tránh xung đột style
+        const scrollClass = `custom-debug-scroll-${side.toLowerCase()}`;
 
         return (
             <div className={`flex-1 flex flex-col gap-4 p-5 rounded-3xl border ${borderColor} ${bgColor} backdrop-blur-md overflow-hidden`}>
+                {/* CSS Scrollbar riêng biệt cho từng cột và hỗ trợ Firefox */}
+                <style>{`
+                    .${scrollClass} {
+                        scrollbar-width: thin;
+                        scrollbar-color: ${thumbColor}66 transparent;
+                    }
+                    .${scrollClass}::-webkit-scrollbar { 
+                        width: 5px; 
+                    }
+                    .${scrollClass}::-webkit-scrollbar-track { 
+                        background: transparent; 
+                    }
+                    .${scrollClass}::-webkit-scrollbar-thumb { 
+                        background: ${thumbColor}66; 
+                        border-radius: 10px; 
+                    }
+                    .${scrollClass}::-webkit-scrollbar-thumb:hover { 
+                        background: ${thumbColor}; 
+                    }
+                `}</style>
+                
                 <h3 className={`text-xl font-black uppercase tracking-tighter border-b ${borderColor} pb-3 ${accentColor}`}>
                     {side} Analysis
                 </h3>
 
-                <div className="flex-1 overflow-y-auto custom-debug-scroll space-y-4 pr-2">
-                    <style>{`
-                        .custom-debug-scroll::-webkit-scrollbar { width: 5px; }
-                        .custom-debug-scroll::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.02); border-radius: 10px; }
-                        .custom-debug-scroll::-webkit-scrollbar-thumb { background: ${thumbColor}44; border-radius: 10px; transition: all 0.3s; }
-                        .custom-debug-scroll::-webkit-scrollbar-thumb:hover { background: ${thumbColor}aa; }
-                    `}</style>
-                    
+                {/* Áp dụng class cuộn đã định nghĩa ở trên */}
+                <div className={`flex-1 overflow-y-auto ${scrollClass} space-y-4 pr-2`}>
                     {teams.map((team, tIdx) => {
                         const config = configs[tIdx] || {};
                         const talentPoints = config.hasCastoriceTalent ? 2 : 0;
@@ -66,12 +76,10 @@ const ScoreDebugger = ({ p1Teams, p2Teams, p1Configs, p2Configs, onClose }: Scor
                                                                 <img src={char.image} alt={char.name} className="w-full h-full object-cover" />
                                                             </div>
                                                             <div className="min-w-0">
-                                                                {/* Tên nhân vật + Eidolon */}
                                                                 <div className="font-black text-white leading-tight uppercase text-[14px] truncate flex items-center gap-1.5">
                                                                     <span>{char.name}</span>
                                                                     <span className="text-cyan-400 text-[11px] bg-cyan-400/10 px-1.5 rounded border border-cyan-400/20 italic">E{char.eidolon || 0}</span>
                                                                 </div>
-                                                                {/* Vũ khí + Rank tích tầng */}
                                                                 <div className="text-[10px] text-white/40 truncate italic flex items-center gap-1">
                                                                     <span className="text-orange-400 font-bold">S{char.weaponRank || 1}</span> 
                                                                     {char.equippedWeapon?.name || "None"}

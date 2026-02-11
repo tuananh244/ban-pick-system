@@ -23,10 +23,23 @@ export const useDraftSocket = (token: string | null, backendUrl: string) => {
       if (data.status === "terminated") setIsTerminated(true);
     };
 
+    // --- 1. ĐỒNG BỘ TRẠNG THÁI TỔNG THỂ ---
     newSocket.on("init_state", handleUpdate);
     newSocket.on("update_state", handleUpdate);
     newSocket.on("timer_tick", (t) => setTimeLeft(t));
     newSocket.on("terminated", () => setIsTerminated(true));
+
+    // --- 2. [MỚI] LẮNG NGHE TÍN HIỆU MONITOR SIÊU NHẸ ---
+    // Cập nhật ngay lập tức p1PreSelect/p2PreSelect mà không cần tải lại toàn bộ roomData
+    newSocket.on("server_notify_preselect", ({ side, item }) => {
+      setRoomData((prev: any) => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          [side === 'p1' ? 'p1PreSelect' : 'p2PreSelect']: item
+        };
+      });
+    });
 
     setSocket(newSocket);
     return () => { newSocket.close(); };

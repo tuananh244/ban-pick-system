@@ -1,25 +1,72 @@
-// Định nghĩa cấu trúc kết quả của từng trận lẻ (Match)
+// Định nghĩa cấu trúc nhân vật/vũ khí để dùng chung
+export interface BanPickItem {
+    id: string;
+    name: string;
+    image?: string;
+    imageFile?: string;
+    rarity?: number;
+    path?: string;
+    elementEn?: string;
+    // Dành riêng cho Pick
+    eidolon?: number;
+    equippedWeapon?: BanPickItem | null;
+    weaponRank?: number;
+}
+
 export interface MatchResult {
     winner: 'p1' | 'p2' | 'draw';
     total1: number;
     total2: number;
 }
 
+export interface WorkflowPhase {
+    type: string;      // Ví dụ: 'CHAR_BAN', 'CHAR_PICK', 'WEA_BAN'
+    priority: string;  // Ví dụ: 'P1', 'P2'
+}
+
 export interface Room {
-    config: any;
-    p1Picks: any[]; p2Picks: any[];
-    p1CharBans: any[]; p2CharBans: any[];
-    p1WeaponBans: any[]; p2WeaponBans: any[];
-    p1FinalTeams: any[][]; // Nên để mảng 2 chiều vì chứa nhiều Team, mỗi Team 4 người
-    p2FinalTeams: any[][]; 
-    p1TeamConfigs: any[]; p2TeamConfigs: any[];
+    config: {
+        roomId: string;
+        tm: number; // Time per turn
+        cb: number; // Total Char Bans
+        pk: number; // Total Picks per side
+        wb: number; // Total Weapon Bans
+        [key: string]: any;
+    };
+    
+    phases: WorkflowPhase[];   // Quy trình từ Landing
+    currentPhaseIdx: number;   // Bước hiện tại trong phases
+    
+    // Quản lý nhân vật & vũ khí
+    p1Picks: BanPickItem[]; 
+    p2Picks: BanPickItem[];
+    p1CharBans: BanPickItem[]; 
+    p2CharBans: BanPickItem[];
+    p1WeaponBans: BanPickItem[]; 
+    p2WeaponBans: BanPickItem[];
+    
+    // Trạng thái giám sát trực tiếp cho Admin (Monitoring)
+    p1PreSelect: BanPickItem | null; 
+    p2PreSelect: BanPickItem | null;
+
+    // Quản lý lượt và giai đoạn
     turn: 'p1' | 'p2';
     phase: string;
     timeLeft: number;
-    timer: NodeJS.Timeout | null;
-    p1Ready: boolean; p2Ready: boolean;
     
-    // Thuộc tính kết quả (Optional - chỉ xuất hiện sau khi Admin nhấn Hoàn tất)
+    // Server side only (Lưu ý: timer không nên gửi về Client)
+    timer: NodeJS.Timeout | null; 
+
+    // Trạng thái sẵn sàng trong MODIFICATION
+    p1Ready: boolean; 
+    p2Ready: boolean;
+    
+    // Kết quả sau khi chia đội
+    p1FinalTeams: BanPickItem[][]; 
+    p2FinalTeams: BanPickItem[][]; 
+    p1TeamConfigs: any[]; 
+    p2TeamConfigs: any[];
+
     result?: {
         logicMode: number;
         useAV: boolean;

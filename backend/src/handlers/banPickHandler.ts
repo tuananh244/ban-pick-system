@@ -4,12 +4,19 @@ import { switchTurn } from '../utils/gameLogic';
 
 export const registerBanPickHandlers = (io: Server, socket: Socket, roomId: string, role: string, side: string) => {
     
-    // Hàm xử lý logic cốt lõi
+    // --- HÀM HỖ TRỢ DỌN DẸP TRẠNG THÁI "ĐANG XEM" ---
+    const clearPreSelects = (r: any) => {
+        r.p1PreSelect = null;
+        r.p2PreSelect = null;
+    };
+
     const handleSelection = (item: any, type: 'UNIT' | 'WEAPON') => {
         const r = roomStore.get(roomId);
         
-        // 1. Kiểm tra cơ bản
-        if (!r || r.phase === 'WAITING' || r.phase === 'MODIFICATION') return;
+        // 1. Kiểm tra trạng thái cơ bản
+        if (!r || ['WAITING', 'MODIFICATION', 'RESULT'].includes(r.phase)) return;
+        
+        // Chỉ Player có lượt mới được thực hiện khóa
         if (role !== 'player' || side !== r.turn) return;
 
         // 2. Kiểm tra trùng lặp (Global Check)
@@ -21,80 +28,102 @@ export const registerBanPickHandlers = (io: Server, socket: Socket, roomId: stri
 
         if (allSelectedIds.includes(item.id)) return;
 
-        // --- TÍNH TOÁN SỐ LƯỢT MỖI BÊN ---
-        // Ví dụ: config.cb = 2 => mỗi bên cấm 1. config.cb = 4 => mỗi bên cấm 2.
+        // 3. Lấy thông tin Workflow hiện tại
+        const currentStep = r.phases[r.currentPhaseIdx];
+        if (!currentStep) return;
+
+        // --- QUAN TRỌNG: Dọn dẹp trạng thái đang xem của Admin trước khi thực hiện logic khóa ---
+        clearPreSelects(r);
+
+        // --- XỬ LÝ DỮ LIỆU ---
+        switch (currentStep.type) {
+            case 'CHAR_BAN':
+                if (type !== 'UNIT') return;
+                (r.turn === 'p1' ? r.p1CharBans : r.p2CharBans).push(item);
+                break;
+
+            case 'CHAR_PICK':
+                if (type !== 'UNIT') return;
+                (r.turn === 'p1' ? r.p1Picks : r.p2Picks).push({ 
+                    ...item, 
+                    eidolon: 0, 
+                    equippedWeapon: null, 
+                    weaponRank: 1 
+                });
+                break;
+
+            case 'WEA_BAN':
+                if (type !== 'WEAPON') return;
+                (r.turn === 'p1' ? r.p1WeaponBans : r.p2WeaponBans).push(item);
+                break;
+        }
+
+        // 4. KIỂM TRA ĐIỀU KIỆN HOÀN THÀNH GIAI ĐOẠN
+        let isPhaseFinished = false;
         const maxCharBansPerSide = Math.floor(r.config.cb / 2);
         const maxWeaponBansPerSide = Math.floor(r.config.wb / 2);
 
-        // 3. XỬ LÝ THEO LUỒNG: CẤM NV -> CHỌN NV -> CẤM NÓN
-        switch (r.phase) {
-            case 'BAN_CHAR':
-                if (type !== 'UNIT') return;
-                (r.turn === 'p1' ? r.p1CharBans : r.p2CharBans).push(item);
-                
-                // Kiểm tra nếu CẢ HAI bên đã cấm đủ số lượng của RIÊNG HỌ
-                if (r.p1CharBans.length >= maxCharBansPerSide && r.p2CharBans.length >= maxCharBansPerSide) {
-                    r.phase = 'PICK_CHAR';
-                    r.turn = 'p1'; // Reset về p1 bắt đầu pick
-                }
-                break;
-
-            case 'PICK_CHAR':
-                if (type !== 'UNIT') return;
-                const currentPicks = r.turn === 'p1' ? r.p1Picks : r.p2Picks;
-                if (currentPicks.length >= r.config.pk) return;
-                
-                // Thêm Character với slot trống cho nón
-                currentPicks.push({ ...item, eidolon: 0, equippedWeapon: null, weaponRank: 1 });
-
-                // Kiểm tra nếu cả 2 bên đã chọn đủ số lượng nhân vật
-                if (r.p1Picks.length >= r.config.pk && r.p2Picks.length >= r.config.pk) {
-                    // Sau khi pick xong, kiểm tra có cấm nón không
-                    if (r.config.wb > 0) {
-                        r.phase = 'BAN_WEAPON';
-                    } else {
-                        // Nếu không cấm nón thì sang MOD luôn
-                        r.phase = 'MODIFICATION';
-                        if (r.timer) clearInterval(r.timer);
-                        r.timeLeft = 0;
-                    }
-                    r.turn = 'p1';
-                }
-                break;
-
-            case 'BAN_WEAPON':
-                if (type !== 'WEAPON') return;
-                (r.turn === 'p1' ? r.p1WeaponBans : r.p2WeaponBans).push(item);
-                
-                // Kiểm tra nếu cả hai bên đã cấm đủ nón của riêng họ
-                if (r.p1WeaponBans.length >= maxWeaponBansPerSide && r.p2WeaponBans.length >= maxWeaponBansPerSide) {
-                    r.phase = 'MODIFICATION';
-                    if (r.timer) clearInterval(r.timer);
-                    r.timeLeft = 0;
-                    r.turn = 'p1';
-                }
-                break;
+        if (currentStep.type === 'CHAR_BAN') {
+            isPhaseFinished = r.p1CharBans.length >= maxCharBansPerSide && r.p2CharBans.length >= maxCharBansPerSide;
+        } else if (currentStep.type === 'CHAR_PICK') {
+            isPhaseFinished = r.p1Picks.length >= r.config.pk && r.p2Picks.length >= r.config.pk;
+        } else if (currentStep.type === 'WEA_BAN') {
+            isPhaseFinished = r.p1WeaponBans.length >= maxWeaponBansPerSide && r.p2WeaponBans.length >= maxWeaponBansPerSide;
         }
 
-        // 4. Cập nhật trạng thái
-        if (r.phase === 'MODIFICATION') {
-            io.to(roomId).emit("update_state", roomStore.getPublicState(roomId));
-            return;
-        }
+        // 5. PHÁT TÍN HIỆU XÓA PRE-SELECT CHO TOÀN BỘ PHÒNG (Để Admin xóa UI)
+        io.to(roomId).emit("server_notify_preselect", { side: r.turn, item: null });
 
-        // Đổi lượt (Switch Turn) cho người tiếp theo
-        switchTurn(roomId, io);
+        // 6. CHUYỂN PHASE HOẶC ĐỔI LƯỢT
+        if (isPhaseFinished) {
+            r.currentPhaseIdx++;
+
+            if (r.currentPhaseIdx < r.phases.length) {
+                const nextStep = r.phases[r.currentPhaseIdx];
+                r.phase = nextStep.type;
+                r.turn = nextStep.priority.toLowerCase() as 'p1' | 'p2';
+                
+                io.to(roomId).emit("update_state", roomStore.getPublicState(roomId));
+                switchTurn(roomId, io); 
+            } else {
+                r.phase = 'MODIFICATION';
+                if (r.timer) clearInterval(r.timer);
+                r.timeLeft = 0;
+                r.turn = 'p1';
+                io.to(roomId).emit("update_state", roomStore.getPublicState(roomId));
+            }
+        } else {
+            switchTurn(roomId, io);
+        }
     };
 
-    // --- CÁC LISTENERS ---
+    // --- CƠ CHẾ MONITORING (PRE-SELECT) CHO ADMIN ---
+    socket.on("client_preselect", (item) => {
+        const r = roomStore.get(roomId);
+        if (!r || ['WAITING', 'MODIFICATION', 'RESULT'].includes(r.phase)) return;
+        
+        // Chỉ người đang có lượt mới được gửi tín hiệu pre-select (tối ưu server)
+        if (role !== 'player' || side !== r.turn) return;
 
+        // Lưu tạm vào store để nếu Admin F5 vẫn thấy
+        if (side === 'p1') r.p1PreSelect = item;
+        else r.p2PreSelect = item;
+
+        // Gửi thông báo siêu nhẹ (chỉ side và item) thay vì gửi cả roomState cồng kềnh
+        // Điều này giúp Render Free không bị quá tải băng thông
+        socket.to(roomId).emit("server_notify_preselect", {
+            side: side,
+            item: item
+        });
+    });
+
+    // --- CÁC LISTENERS KHÁC ---
     socket.on("action_pick", (char) => handleSelection(char, 'UNIT'));
     socket.on("action_pick_weapon", (wpn) => handleSelection(wpn, 'WEAPON'));
 
     socket.on("action_update_unit", (data) => {
         const r = roomStore.get(roomId);
         if (!r || r.phase !== 'MODIFICATION') return;
-        
         const target = side === 'p1' ? r.p1Picks : r.p2Picks;
         if (target[data.index]) {
             target[data.index] = { ...target[data.index], ...data };
@@ -105,10 +134,8 @@ export const registerBanPickHandlers = (io: Server, socket: Socket, roomId: stri
     socket.on("action_confirm_mod", () => {
         const r = roomStore.get(roomId);
         if (!r || r.phase !== 'MODIFICATION') return;
-        
         if (side === 'p1') r.p1Ready = !r.p1Ready;
         else r.p2Ready = !r.p2Ready;
-        
         io.to(roomId).emit("update_state", roomStore.getPublicState(roomId));
     });
 };

@@ -11,7 +11,7 @@ const getBackendUrl = () => {
 
 export const ENV = {
   BACKEND_URL: getBackendUrl(),
-  // Encode sẵn để không phải new TextEncoder() nhiều lần
-  JWT_SECRET: new TextEncoder().encode(import.meta.env.VITE_JWT_SECRET),
+  // Chỉ để là string nguyên bản
+  JWT_SECRET: import.meta.env.VITE_JWT_SECRET || "default_secret",
   IS_DEV: import.meta.env.DEV,
 };
