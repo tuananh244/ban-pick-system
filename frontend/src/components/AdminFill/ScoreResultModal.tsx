@@ -77,7 +77,7 @@ export const ScoreResultModal: React.FC<ScoreResultModalProps> = ({ p1Teams, p2T
 
     const calculatePerfScore = (val: number) => {
         const num = Number(val) || 0;
-        if (useAV) return num * 0.1;
+        if (useAV) return num * 0.05;
         if (num === 0) return -5;
         return 1 + (num - 1) * 0.5;
     };
@@ -85,17 +85,20 @@ export const ScoreResultModal: React.FC<ScoreResultModalProps> = ({ p1Teams, p2T
     const results = useMemo(() => {
         if (logicMode === null) return null;
         let p1WinCount = 0, p2WinCount = 0, p1CumulativeScore = 0, p2CumulativeScore = 0;
-        const maxMatches = Math.max(p1Configs.length, p2Configs.length);
+        
+        const maxMatches = Math.max(p1Teams.length, p2Teams.length, p1Configs.length, p2Configs.length);
         const matches = [];
 
         for (let i = 0; i < maxMatches; i++) {
             const c1 = p1Configs[i] || { turns: 0, av: 0, isCleared: false, hasCastoriceTalent: false, deadCount: 0 };
             const c2 = p2Configs[i] || { turns: 0, av: 0, isCleared: false, hasCastoriceTalent: false, deadCount: 0 };
+            
             const cost1 = calculateCost(p1Teams[i], c1);
             const cost2 = calculateCost(p2Teams[i], c2);
             const perf1 = calculatePerfScore(useAV ? c1.av : c1.turns);
             const perf2 = calculatePerfScore(useAV ? c2.av : c2.turns);
             const raw1 = cost1 + perf1, raw2 = cost2 + perf2;
+            
             let winner: 'p1' | 'p2' | 'draw' = 'draw', ms1 = raw1, ms2 = raw2;
 
             if (logicMode === 1) {
@@ -106,14 +109,20 @@ export const ScoreResultModal: React.FC<ScoreResultModalProps> = ({ p1Teams, p2T
                 ms1 += (!!c1.isCleared ? 0 : 25); ms2 += (!!c2.isCleared ? 0 : 25);
                 if (ms1 < ms2) winner = 'p1'; else if (ms1 > ms2) winner = 'p2';
             }
-            if (winner === 'p1') p1WinCount++; if (winner === 'p2') p2WinCount++;
-            p1CumulativeScore += ms1; p2CumulativeScore += ms2;
+            
+            if (winner === 'p1') p1WinCount++; 
+            if (winner === 'p2') p2WinCount++;
+            
+            p1CumulativeScore += ms1; 
+            p2CumulativeScore += ms2;
+            
             matches.push({ 
                 p1: { status: !!c1.isCleared, turns: c1.turns, av: c1.av, cost: cost1, total: ms1, hasTalent: !!c1.hasCastoriceTalent, deadCount: c1.deadCount }, 
                 p2: { status: !!c2.isCleared, turns: c2.turns, av: c2.av, cost: cost2, total: ms2, hasTalent: !!c2.hasCastoriceTalent, deadCount: c2.deadCount }, 
                 winner 
             });
         }
+        
         const finalWinnerName = p1WinCount > p2WinCount ? 'ĐỘI 01' : (p2WinCount > p1WinCount ? 'ĐỘI 02' : (p1CumulativeScore < p2CumulativeScore ? 'ĐỘI 01' : 'ĐỘI 02'));
         return { matches, p1WinCount, p2WinCount, p1CumulativeScore, p2CumulativeScore, finalWinner: finalWinnerName };
     }, [p1Teams, p2Teams, p1Configs, p2Configs, logicMode, useAV]);
@@ -145,7 +154,6 @@ export const ScoreResultModal: React.FC<ScoreResultModalProps> = ({ p1Teams, p2T
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/90 backdrop-blur-md animate-in fade-in duration-500">
             <div className="w-full max-w-5xl bg-[#0b0e14] border border-white/10 rounded-[2.5rem] overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
                 
-                {/* CSS SCROLLBAR CUSTOM */}
                 <style>{`
                     .custom-result-scroll::-webkit-scrollbar {
                         width: 5px;
@@ -183,8 +191,7 @@ export const ScoreResultModal: React.FC<ScoreResultModalProps> = ({ p1Teams, p2T
                     </div>
                 </div>
 
-                {/* VÙNG CUỘN DANH SÁCH TRẬN ĐẤU */}
-                <div className="p-8 bg-black/40 overflow-y-auto custom-result-scroll flex-1">
+                <div className="p-8 bg-black/40 overflow-y-auto custom-result-scroll flex-1 min-h-0">
                     <div className={`grid gap-8 ${results!.matches.length <= 2 ? 'grid-cols-2' : 'grid-cols-1'}`}>
                         {results?.matches.map((match, i) => (
                             <div key={i} className="space-y-4">
@@ -199,7 +206,6 @@ export const ScoreResultModal: React.FC<ScoreResultModalProps> = ({ p1Teams, p2T
                     </div>
                 </div>
 
-                {/* FOOTER HIỂN THỊ NGƯỜI CHIẾN THẮNG */}
                 <div className="relative p-10 border-t border-white/5 text-center bg-gradient-to-b from-transparent to-[#14171f] overflow-hidden shrink-0">
                     {results?.finalWinner !== 'HÒA' && <Fireworks color={winnerColor} />}
                     <div className="relative z-10">

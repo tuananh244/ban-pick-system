@@ -27,6 +27,19 @@ const io = new Server(httpServer, {
   }
 });
 
+// --- HÀM HELPER: TÌM GIAI ĐOẠN HỢP LỆ TIẾP THEO (Bỏ qua phase có count = 0) ---
+const findNextValidPhaseIdx = (room: any, startIdx: number): number => {
+    for (let i = startIdx; i < room.phases.length; i++) {
+        const p = room.phases[i];
+        // Kiểm tra dựa trên cấu hình config của phòng
+        if (p.type === 'CHAR_BAN' && room.config.cb === 0) continue;
+        if (p.type === 'WEA_BAN' && room.config.wb === 0) continue;
+        if (p.type === 'CHAR_PICK' && room.config.pk === 0) continue;
+        return i; // Tìm thấy phase hợp lệ
+    }
+    return room.phases.length; // Đi tới cuối (MODIFICATION)
+};
+
 io.on("connection", (socket) => {
     const { token } = socket.handshake.auth;
     if (!token) return socket.disconnect();
@@ -39,13 +52,8 @@ io.on("connection", (socket) => {
 
         // 1. KHỞI TẠO PHÒNG NẾU CHƯA TỒN TẠI
         if (!roomStore.has(roomId)) {
-            // Giải mã kịch bản từ Landing (lưu trong trường 'turn' của token)
             const workflowPhases = JSON.parse(decoded.turn || "[]");
             
-            // XÁC ĐỊNH LƯỢT ĐI ĐẦU TIÊN TỪ KỊCH BẢN
-            const firstPhase = workflowPhases[0];
-            const initialTurn = firstPhase ? (firstPhase.priority.toLowerCase() as 'p1' | 'p2') : 'p1';
-
             const config = {
                 ...decoded,
                 tm: parseInt(decoded.tm || 0),
@@ -59,13 +67,12 @@ io.on("connection", (socket) => {
                 phases: workflowPhases,
                 currentPhaseIdx: 0,
                 phase: 'WAITING', 
-                turn: initialTurn, // Gán đúng lượt đi từ workflow ngay lập tức
+                turn: 'p1', // Sẽ được cập nhật chính xác khi Admin bắt đầu
                 p1Picks: [], p2Picks: [],
                 p1CharBans: [], p2CharBans: [],
                 p1WeaponBans: [], p2WeaponBans: [],
                 p1FinalTeams: [], p2FinalTeams: [],
                 p1TeamConfigs: [], p2TeamConfigs: [],
-                // KHỞI TẠO TRẠNG THÁI GIÁM SÁT TRỰC TIẾP (PRE-SELECT)
                 p1PreSelect: null,
                 p2PreSelect: null,
                 timeLeft: config.tm,
@@ -81,26 +88,35 @@ io.on("connection", (socket) => {
         if (role === 'admin' && room.phase === 'WAITING') {
             console.log(`⚡ Admin joined. Starting workflow for room: ${roomId}`);
             
-            const firstPhase = room.phases[0];
-            if (firstPhase) {
+            // TÌM PHASE ĐẦU TIÊN CÓ SỐ LƯỢNG > 0
+            const firstValidIdx = findNextValidPhaseIdx(room, 0);
+            room.currentPhaseIdx = firstValidIdx;
+
+            if (firstValidIdx < room.phases.length) {
+                const firstPhase = room.phases[firstValidIdx];
                 room.phase = firstPhase.type;
+                // Gán đúng lượt đi từ cấu hình priority của phase đó
                 room.turn = firstPhase.priority.toLowerCase() as 'p1' | 'p2';
+                
+                room.timeLeft = room.config.tm;
+                startTimer(roomId, io);
+            } else {
+                // Nếu tất cả các phase đều là 0, nhảy thẳng vào MODIFICATION
+                room.phase = 'MODIFICATION';
+                room.turn = 'p1';
             }
-            
-            room.timeLeft = room.config.tm;
-            startTimer(roomId, io);
             
             // Thông báo cho Players thoát màn hình WAITING
             io.to(roomId).emit("update_state", roomStore.getPublicState(roomId));
         }
 
-        // 3. ĐỒNG BỘ TRẠNG THÁI BAN ĐẦU CHO CLIENT
+        // 3. ĐỒNG BỘ TRẠNG THÁI CHO CLIENT
         socket.emit("init_state", { 
             ...roomStore.getPublicState(roomId), 
             myIdentity: { role, side } 
         });
 
-        // 4. ĐĂNG KÝ CÁC ACTION HANDLERS (PICK, BAN, PRESELECT, MOD...)
+        // 4. ĐĂNG KÝ CÁC ACTION HANDLERS
         registerHandlers(io, socket, roomId, role, side);
 
     } catch (e) {

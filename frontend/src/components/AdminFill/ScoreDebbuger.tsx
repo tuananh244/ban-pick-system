@@ -137,7 +137,7 @@ const ScoreDebugger = ({ p1Teams, p2Teams, p1Configs, p2Configs, onClose }: Scor
                 )}
             </div>
 
-            <div className="flex gap-6 h-[650px]">
+            <div className="flex gap-6 h-[560px]">
                 {renderTable(p1Teams, p1Configs, "P1")}
                 {renderTable(p2Teams, p2Configs, "P2")}
             </div>
